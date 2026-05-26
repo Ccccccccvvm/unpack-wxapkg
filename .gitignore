@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# 解密/解包产物
+*.dec
+*.unpacked/
+*.wxapkg
