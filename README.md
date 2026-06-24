@@ -7,6 +7,7 @@
 - 解密 `V1MMWX` 加密包 → 标准明文 `.wxapkg`
 - 解析 wxapkg 索引表，把每个文件还原到磁盘
 - 自动校验（解密后首字节必须是 `0xBE`，appid 错误会立即报错）
+- 支持传入目录，递归遍历其中的 `.wxapkg` 批量解包
 
 ## 加密原理
 
@@ -33,20 +34,26 @@ pip install pycryptodome
 ## 用法
 
 ```bash
-python3 unpack_wxapkg.py <file.wxapkg> <appid> [-o OUTDIR] [--no-extract]
+python3 unpack_wxapkg.py <file.wxapkg|dir> [appid] [-o OUTDIR] [--no-extract]
 ```
 
 | 参数 | 说明 |
 |---|---|
-| `file` | 加密的 `.wxapkg` 文件路径 |
-| `appid` | 小程序 / 插件的 appid |
-| `-o, --outdir` | 解包输出目录（默认 `<file>.unpacked`） |
+| `file.wxapkg\|dir` | 加密的 `.wxapkg` 文件路径，或包含 `.wxapkg` 的目录 |
+| `appid` | 小程序 / 插件的 appid；目录模式下可省略，默认使用传入目录名 |
+| `-o, --outdir` | 解包输出目录；目录模式下会按相对路径写入该目录（默认 `<file>.unpacked`） |
 | `--no-extract` | 只解密生成 `.dec`，不解包单个文件 |
 
 ### 示例
 
 ```bash
 python3 unpack_wxapkg.py __PLUGINCODE__.wxapkg wx3bbab3920eabccb2
+```
+
+批量解包目录：
+
+```bash
+python3 unpack_wxapkg.py ./WeChat\ Files/Applet/wx3bbab3920eabccb2
 ```
 
 输出：
@@ -65,6 +72,8 @@ python3 unpack_wxapkg.py __PLUGINCODE__.wxapkg wx3bbab3920eabccb2
 
 - `<file>.dec` —— 解密后的明文整包（可再喂给其它 wxapkg 工具）
 - `<file>.unpacked/` —— 解出的全部源文件
+
+目录模式下，每个包都会在原文件旁生成 `<file>.dec`；未指定 `-o` 时，每个包也会在原文件旁生成 `<file>.unpacked/`。如果指定 `-o OUTDIR`，解包目录会保留原目录下的相对路径，例如 `OUTDIR/sub/pkg.wxapkg.unpacked/`。
 
 ## 如何获取 appid
 
